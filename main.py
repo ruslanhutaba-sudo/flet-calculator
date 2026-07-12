@@ -5,24 +5,26 @@ def main(page: ft.Page):
     page.title = "Инженерный калькулятор"
     page.window_width = 380
     page.window_height = 600
+    page.window_min_width = 380
+    page.window_min_height = 600
     page.theme_mode = ft.ThemeMode.DARK
-    page.bgcolor = "#17171C"
-    
+    page.bgcolor = "#17171c"
+
     expression = ""
 
     txt_display = ft.TextField(
-        value="0", 
-        text_align=ft.TextAlign.RIGHT, 
-        text_size=36, 
-        border=ft.InputBorder.NONE,
+        value="0",
+        text_align=ft.TextAlign.RIGHT,
         read_only=True,
-        color="#FFFFFF"
+        border=ft.InputBorder.NONE,
+        text_size=42,
+        color="white"
     )
 
     def button_click(e):
         nonlocal expression
-        data = e.control.text
-        
+        data = e.control.data
+
         if data == "C":
             expression = ""
             txt_display.value = "0"
@@ -31,56 +33,56 @@ def main(page: ft.Page):
             txt_display.value = expression if expression else "0"
         elif data == "=":
             try:
-                # Заменяем знаки для SymPy
-                expr_str = expression.replace("×", "*").replace("÷", "/")
-                expr_str = expr_str.replace("√(", "sqrt(").replace("π", "pi")
-                
-                result = sp.sympify(expr_str).evalf()
+                expr_str = expression.replace("√", "sqrt").replace("π", "pi").replace("e", "E")
+                expr = sp.sympify(expr_str)
+                result = expr.evalf()
                 
                 if result.is_integer:
                     txt_display.value = str(int(result))
                 else:
-                    txt_display.value = f"{result:.8g}"
+                    txt_display.value = f"{result:.6g}"
                 expression = txt_display.value
-            except:
+            except Exception:
                 txt_display.value = "Ошибка"
                 expression = ""
-        elif data in ["sin", "cos", "tan", "√", "log"]:
+        elif data in ["sin", "cos", "tan", "ln", "log"]:
             expression += f"{data}("
             txt_display.value = expression
-        else:
-            if txt_display.value == "0" and data not in ["+", "-", "×", "÷"]:
-                expression = data
-            else:
-                expression += data
+        elif data == "√":
+            expression += "√("
             txt_display.value = expression
-            
+        else:
+            expression += data
+            txt_display.value = expression
+
         page.update()
 
-    def btn(text, bg_color="#2E2F38", text_color="#FFFFFF", flex=1):
+    def btn(text, bg_color="#212124", text_color="white", arrow=False):
         return ft.Container(
-            content=ft.Text(text, size=20, color=text_color, weight=ft.FontWeight.BOLD),
+            content=ft.Text(text, color=text_color, weight=ft.FontWeight.BOLD, size=18),
             alignment=ft.alignment.center,
+            border_radius=30,
             bg_color=bg_color,
-            border_radius=25,
-            expand=flex,
+            expand=True,
             on_click=button_click,
-            animate=ft.animation.Animation(200, "easeOut")
+            data=text,
+            animate=ft.Animation(300, "easelnOut")
         )
 
     page.add(
-        ft.Container(content=txt_display, padding=20, expand=2),
-        ft.Column(
-            expand=8,
-            controls=[
-                ft.Row(controls=[btn("sin", "#4E505F"), btn("cos", "#4E505F"), btn("tan", "#4E505F"), btn("log", "#4E505F")], expand=1),
-                ft.Row(controls=[btn("√", "#4E505F"), btn("π", "#4E505F"), btn("^", "#4E505F"), btn("⌫", "#4E505F")], expand=1),
-                ft.Row(controls=[btn("C", "#A5A5A5", "#000000"), btn("(", "#4E505F"), btn(")", "#4E505F"), btn("÷", "#FF9F0A")], expand=1),
-                ft.Row(controls=[btn("7"), btn("8"), btn("9"), btn("×", "#FF9F0A")], expand=1),
-                ft.Row(controls=[btn("4"), btn("5"), btn("6"), btn("-", "#FF9F0A")], expand=1),
-                ft.Row(controls=[btn("1"), btn("2"), btn("3"), btn("+", "#FF9F0A")], expand=1),
-                ft.Row(controls=[btn("0", flex=2), btn("."), btn("=", "#FF9F0A")], expand=1),
-            ]
+        ft.Container(
+            content=ft.Column([
+                ft.Container(content=txt_display, padding=10, expand=1),
+                ft.Row([btn("sin", "#2c2c35"), btn("cos", "#2c2c35"), btn("tan", "#2c2c35"), btn("ln", "#2c2c35"), btn("log", "#2c2c35")], spacing=10),
+                ft.Row([btn("π", "#2c2c35"), btn("e", "#2c2c35"), btn("√", "#2c2c35"), btn("^", "#2c2c35"), btn("(", "#2c2c35"), btn(")", "#2c2c35")], spacing=10),
+                ft.Row([btn("C", "#a5a5a5", "black"), btn("⌫", "#a5a5a5", "black"), btn("%", "#a5a5a5", "black"), btn("/", "#ff9f0a")], spacing=10),
+                ft.Row([btn("7"), btn("8"), btn("9"), btn("*", "#ff9f0a")], spacing=10),
+                ft.Row([btn("4"), btn("5"), btn("6"), btn("-", "#ff9f0a")], spacing=10),
+                ft.Row([btn("1"), btn("2"), btn("3"), btn("+", "#ff9f0a")], spacing=10),
+                ft.Row([btn("0", expand=2), btn("."), btn("=", "#ff9f0a")], spacing=10),
+            ], spacing=10, alignment=ft.MainAxisAlignment.END),
+            padding=20,
+            expand=True
         )
     )
 
