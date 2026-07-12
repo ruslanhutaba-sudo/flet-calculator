@@ -3,10 +3,6 @@ import sympy as sp
 
 def main(page: ft.Page):
     page.title = "Инженерный калькулятор"
-    page.window_width = 380
-    page.window_height = 600
-    page.window_min_width = 380
-    page.window_min_height = 600
     page.theme_mode = ft.ThemeMode.DARK
     page.bgcolor = "#17171c"
 
@@ -62,11 +58,11 @@ def main(page: ft.Page):
             content=ft.Text(text, color=text_color, weight=ft.FontWeight.BOLD, size=18),
             alignment=ft.alignment.center,
             border_radius=30,
-            bg_color=bg_color,
+            bgcolor=bg_color,
             expand=True,
             on_click=button_click,
             data=text,
-            animate=ft.Animation(300, "easelnOut")
+            animate=ft.Animation(300, "easeIn")
         )
 
     page.add(
